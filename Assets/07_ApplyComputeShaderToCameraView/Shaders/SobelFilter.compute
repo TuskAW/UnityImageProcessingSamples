@@ -1,0 +1,28 @@
+﻿#pragma kernel SobelFilterCS
+
+#define THREAD_X 16
+#define THREAD_Y 16
+
+Texture2D<float4> _SrcImage;
+RWTexture2D<float4> _Result;
+
+[numthreads(THREAD_X, THREAD_Y, 1)]
+void SobelFilterCS (uint3 id : SV_DispatchThreadID)
+{
+	float3x3 _operator = {1, 0, -1,
+						  2, 0, -2,
+						  1, 0, -1};
+
+	float4 cx = float4(0, 0, 0, 0);
+	float4 cy = float4(0, 0, 0, 0);
+	for(int x=-1; x<=1; x++)
+	{
+		for(int y=-1; y<=1; y++)
+		{
+			cx += _SrcImage[id.xy + int2(x,y)] * _operator[x+1][y+1];
+			cy += _SrcImage[id.xy + int2(x,y)] * _operator[y+1][x+1];
+		}
+	}
+
+    _Result[id.xy] = sqrt(cx*cx + cy*cy);
+}
