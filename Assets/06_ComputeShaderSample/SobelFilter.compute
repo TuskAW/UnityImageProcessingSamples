@@ -6,12 +6,29 @@ Texture2D<float4> srcTexture;
 // with cs.SetTexture
 RWTexture2D<float4> Result;
 
+cbuffer params
+{
+    int _Width;
+    int _Height;
+};
+
+bool IsValidPixelPositionUsingWindow(uint2 p, uint width, uint height, uint wh)
+{
+    bool isValid = (p.x >= wh && p.x < width - wh  && p.y >= wh && p.y < height - wh);
+    return isValid ? true : false;
+}
+
 [numthreads(8,8,1)]
 void SobelFilterCS (uint3 id : SV_DispatchThreadID)
 {
 	float3x3 _operator = {1, 0, -1,
 						  2, 0, -2,
 						  1, 0, -1};
+
+	if (!IsValidPixelPositionUsingWindow(id, _Width, _Height, 1))
+	{
+		return;
+	}
 
 	float4 cx = float4(0, 0, 0, 0);
 	float4 cy = float4(0, 0, 0, 0);

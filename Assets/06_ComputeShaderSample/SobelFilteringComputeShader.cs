@@ -32,6 +32,8 @@ public class SobelFilteringComputeShader : MonoBehaviour
 		}
 
 		int kernelID = computeShader.FindKernel("SobelFilterCS");
+		computeShader.SetInt("_Width", srcTexture.width);
+		computeShader.SetInt("_Height", srcTexture.height);
 		computeShader.SetTexture(kernelID, "srcTexture", srcTexture);
         computeShader.SetTexture(kernelID, "Result", dstTexture);
         computeShader.Dispatch(kernelID, srcTexture.width/8, srcTexture.height/8, 1);
